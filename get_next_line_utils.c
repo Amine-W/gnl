@@ -36,8 +36,6 @@ char	*ft_strjoin(char const *s1, char const *s2)
 	int		i;
 	int		j;
 
-	if (!s1 && !s2)
-		return (NULL);
 	if (!s1)
 		return (ft_strdup(s2));
 	if (!s2)
@@ -58,10 +56,8 @@ char	*ft_strjoin(char const *s1, char const *s2)
 		i++;
 		j++;
 	}
-	dest[i] = '\0';
-	return (dest);
+	return ((dest[i] = '\0'), dest);
 }
-
 
 char	*ft_strchr(const char *s, int c)
 {

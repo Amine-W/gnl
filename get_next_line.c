@@ -48,10 +48,5 @@ char	*get_next_line(int fd)
 	}
 	free(buffer);
 	line = extract_line(stash);
-	stash = clean_stash(stash);
-	return (line);
+	return (stash = clean_stash(stash), line);
 }
-
-
-
-
