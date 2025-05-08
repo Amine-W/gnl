@@ -74,10 +74,12 @@ char	*ft_strchr(const char *s, int c)
 char	*extract_line(char *stash)
 {
 	int		i;
+	int j;
 	char	*line;
 
 	if (!stash || stash[0] == '\0')
 		return (NULL);
+
 	i = 0;
 	while (stash[i] && stash[i] != '\n')
 		i++;
@@ -86,17 +88,16 @@ char	*extract_line(char *stash)
 	line = (char *)malloc(sizeof(char) * (i + 1));
 	if (!line)
 		return (NULL);
-	i = 0;
-	while (stash[i] && stash[i] != '\n')
+	j = 0;
+	while (j < i)
 	{
-		line[i] = stash[i];
-		i++;
+		line[j] = stash[j];
+		j++;
 	}
-	if (stash[i] == '\n')
-		line[i] = '\n';
-	line[i + 1] = '\0';
+	line[j] = '\0';
 	return (line);
 }
+
 
 char	*clean_stash(char *stash)
 {
@@ -109,7 +110,7 @@ char	*clean_stash(char *stash)
 		i++;
 	if (!stash[i])
 		return (free(stash), NULL);
-	new = malloc(ft_strlen(stash + i));
+	new = malloc(ft_strlen(stash + i) + 1);
 	if (!new)
 		return (NULL);
 	i++;
