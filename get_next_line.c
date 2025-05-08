@@ -24,13 +24,14 @@ size_t	ft_strlen(const char *s)
 
 char	*get_next_line(int fd)
 {
-	static char		*stash;
-	char			*buffer;
-	char			*line;
-	int				readed;
+	static char	*stash;
+	char		*buffer;
+	char		*line;
+	char		*tmp;
+	int			readed;
 
 	if (fd < 0 || BUFFER_SIZE <= 0 || read(fd, 0, 0) < 0)
-		return (NULL);
+		return (free(stash), stash = NULL, NULL);
 	buffer = malloc(BUFFER_SIZE + 1);
 	if (!buffer)
 		return (NULL);
@@ -39,12 +40,18 @@ char	*get_next_line(int fd)
 	{
 		readed = read(fd, buffer, BUFFER_SIZE);
 		if (readed == -1)
-			break ;
+			return (free(buffer), free(stash), stash = NULL, NULL);
 		buffer[readed] = '\0';
+		tmp = stash;
 		stash = ft_strjoin(stash, buffer);
+		free(tmp);
 	}
 	free(buffer);
 	line = extract_line(stash);
 	stash = clean_stash(stash);
 	return (line);
 }
+
+
+
+

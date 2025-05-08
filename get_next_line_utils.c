@@ -38,23 +38,30 @@ char	*ft_strjoin(char const *s1, char const *s2)
 
 	if (!s1 && !s2)
 		return (NULL);
-	if (!s1 || !s2)
-		return (ft_strdup(s1 ? s1 : s2));
-	dest = malloc (sizeof(char) * (ft_strlen(s1) + ft_strlen(s2) + 1));
+	if (!s1)
+		return (ft_strdup(s2));
+	if (!s2)
+		return (ft_strdup(s1));
+	dest = malloc(sizeof(char) * (ft_strlen(s1) + ft_strlen(s2) + 1));
 	if (!dest)
 		return (NULL);
 	i = 0;
-	while (s1 && s1[i])
+	while (s1[i])
 	{
 		dest[i] = s1[i];
 		i++;
 	}
 	j = 0;
-	while (s2 && s2[j])
-		dest[i++] = s2[j++];
+	while (s2[j])
+	{
+		dest[i] = s2[j];
+		i++;
+		j++;
+	}
 	dest[i] = '\0';
 	return (dest);
 }
+
 
 char	*ft_strchr(const char *s, int c)
 {
@@ -74,12 +81,11 @@ char	*ft_strchr(const char *s, int c)
 char	*extract_line(char *stash)
 {
 	int		i;
-	int j;
+	int		j;
 	char	*line;
 
 	if (!stash || stash[0] == '\0')
 		return (NULL);
-
 	i = 0;
 	while (stash[i] && stash[i] != '\n')
 		i++;
@@ -97,7 +103,6 @@ char	*extract_line(char *stash)
 	line[j] = '\0';
 	return (line);
 }
-
 
 char	*clean_stash(char *stash)
 {
