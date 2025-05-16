@@ -17,7 +17,7 @@ int	main(void)
 	int		fd;
 	char	*line;
 
-	fd = open("test/nl", O_RDONLY);
+	fd = open("test/1char", O_RDONLY);
 	if (fd < 0)
 	{
 		perror("Erreur ouverture fichier");
