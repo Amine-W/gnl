@@ -24,16 +24,22 @@ size_t	ft_strlen(const char *s)
 char	*get_line(char *stash)
 {
 	int		i;
+	int		j;
 	char 	*line;
 
 	i = 0;
 	while(stash[i] && stash[i] != '\n')
-		i++,
+		i++;
 	line = (char *)malloc(1 * (i + 2));
 	if(!line)
 		return (NULL);
-	while(i + 2 > 0)
-		line[i + 2] = stash[i--];
+	j = 0;
+	while(j <= i)
+	{
+		line[j] = stash[j];
+		j++;
+	}
+	line[j] = '\0';
 	return(line);
 }
 static char	*fed_stash(int fd, char *stash)
