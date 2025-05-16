@@ -21,41 +21,55 @@ size_t	ft_strlen(const char *s)
 		i++;
 	return (i);
 }
-
-void	clear_buffer(char *buffer, int readed)
+char	*get_line(char *stash)
 {
-	while (readed > 0)
+	int		i;
+	char 	*line;
+
+	i = 0;
+	while(stash[i] && stash[i] != '\n')
+		i++,
+	line = (char *)malloc(1 * (i + 2));
+	if(!line)
+		return (NULL);
+	while(i + 2 > 0)
+		line[i + 2] = stash[i--];
+	return(line);
+}
+static char	*fed_stash(int fd, char *stash)
+{
+	int		readed;
+	char	*buffer;
+	char	*temp;
+
+	buffer = (char *)malloc(1 * BUFFER_SIZE + 1);
+	if(!buffer)
+		return (NULL);
+	readed = 1;
+	while(readed > 0)
 	{
-		buffer[readed--] = 0;
+		readed = read(fd, buffer,BUFFER_SIZE);
+		if(readed < 0)
+			break ;
+		buffer[readed] = '\0';
+		temp = stash;
+		stash = ft_strjoin(stash, buffer);
+		free(temp);
+		temp = NULL;
+		if(ft_strchr(stash, '\n')) // si il y a un \n donc une ligne on sarrete et on renvoie la ligne et le reste
+			break ;
 	}
-	return (buffer);
+	return(free(buffer), stash);
 }
 
 char	*get_next_line(int fd)
 {
-	static char	*stash;
-	char		*buffer;
-	char		*line;
-	char		*tmp;
-	int			readed;
-
-	if (fd < 0 || BUFFER_SIZE <= 0 || read(fd, 0, 0) < 0)
+	static char *stash; //tableau dans lequel on va stocker les elements du buffer;
+	char 		*line;
+	
+	if(fd < 0 || BUFFER_SIZE <= 0 || read(fd, 0, 0) < 0) // il y a un fichier? || buffer valide || fichier valide
 		return (free(stash), stash = NULL, NULL);
-	buffer = malloc(BUFFER_SIZE + 1);
-	if (!buffer)
-		return (NULL);
-	readed = 1;
-	while (!ft_strchr(stash, '\n') && readed > 0)
-	{
-		readed = read(fd, buffer, BUFFER_SIZE);
-		if (readed == -1 || (readed == 0 && !buffer && !stash))
-			return (free(buffer), free(stash), stash = NULL, NULL);
-		buffer[readed] = '\0';
-		tmp = stash;
-		stash = ft_strjoin(stash, buffer);
-		free(tmp);
-		clear_buffer(buffer, readed);
-	}
-	free(buffer);
-	return (line = extract_line(stash), stash = clean_stash(stash), line);
+	stash = fed_stash(fd, stash);
+	line = get_line(stash);
+	return(line);
 }
