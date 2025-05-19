@@ -12,70 +12,102 @@
 
 #include "get_next_line.h"
 
-size_t	ft_strlen(const char *s)
+static char	*ft_free(char *pointer)
 {
-	size_t	i;
-
-	i = 0;
-	while (s[i])
-		i++;
-	return (i);
+	free(pointer);
+	return (NULL);
 }
-char	*get_line(char *stash)
+
+static char	*get_line(char *stash)
+{
+	int		index;
+	char	*line;
+
+	index = 0;
+	if (!stash || !stash[0])
+		return (NULL);
+	while (stash[index] && stash[index] != '\n')
+		index++;
+	if (stash[index] == '\n')
+		index++;
+	line = malloc(index + 1);
+	if (!line)
+		return (NULL);
+	index = -1;
+	while (stash[++index] && stash[index] != '\n')
+		line[index] = stash[index];
+	if (stash[index] == '\n')
+		line[index++] = '\n';
+	line[index] = 0;
+	return (line);
+}
+
+static char	*clean_stash(char *stash)
 {
 	int		i;
 	int		j;
-	char 	*line;
+	char	*new_stash;
 
 	i = 0;
-	while(stash[i] && stash[i] != '\n')
+	while (stash[i] && stash[i] != '\n')
 		i++;
-	line = (char *)malloc(1 * (i + 2));
-	if(!line)
-		return (NULL);
+	if (!stash[i])
+		return (ft_free(stash));
+	new_stash = malloc(ft_strlen(stash) - i + 1);
+	if (!new_stash)
+		return (ft_free(stash));
+	i++;
 	j = 0;
-	while(j <= i)
-	{
-		line[j] = stash[j];
-		j++;
-	}
-	line[j] = '\0';
-	return(line);
+	while (stash[i])
+		new_stash[j++] = stash[i++];
+	new_stash[j] = 0;
+	free(stash);
+	return (new_stash);
 }
+
 static char	*fed_stash(int fd, char *stash)
 {
-	int		readed;
 	char	*buffer;
-	char	*temp;
+	char	*joined_stash;
+	int		readed;
 
-	buffer = (char *)malloc(1 * BUFFER_SIZE + 1);
-	if(!buffer)
-		return (NULL);
+	buffer = malloc(BUFFER_SIZE + 1);
+	if (!buffer)
+		return (ft_free(stash));
+	if (!stash)
+		stash = ft_strdup("");
 	readed = 1;
-	while(readed > 0)
+	while (readed > 0 && !ft_strchr(stash, '\n'))
 	{
-		readed = read(fd, buffer,BUFFER_SIZE);
-		if(readed < 0)
-			break ;
-		buffer[readed] = '\0';
-		temp = stash;
-		stash = ft_strjoin(stash, buffer);
-		free(temp);
-		temp = NULL;
-		if(ft_strchr(stash, '\n')) // si il y a un \n donc une ligne on sarrete et on renvoie la ligne et le reste
-			break ;
+		readed = read(fd, buffer, BUFFER_SIZE);
+		if (readed < 0)
+			return (free(buffer), ft_free(stash));
+		buffer[readed] = 0;
+		joined_stash = ft_strjoin(stash, buffer);
+		free(stash);
+		stash = joined_stash;
 	}
-	return(free(buffer), stash);
+	free(buffer);
+	return (stash);
 }
 
 char	*get_next_line(int fd)
 {
-	static char *stash; //tableau dans lequel on va stocker les elements du buffer;
-	char 		*line;
-	
-	if(fd < 0 || BUFFER_SIZE <= 0 || read(fd, 0, 0) < 0) // il y a un fichier? || buffer valide || fichier valide
-		return (free(stash), stash = NULL, NULL);
+	static char	*stash;
+	char		*line;
+
+	if (fd < 0 || BUFFER_SIZE <= 0 || read(fd, 0, 0) < 0)
+		return (NULL);
 	stash = fed_stash(fd, stash);
+	if (!stash)
+		return (NULL);
 	line = get_line(stash);
-	return(line);
+	if (!line)
+	{
+		free(stash);
+		stash = NULL;
+		return (NULL);
+	}
+	stash = clean_stash(stash);
+	return (line);
 }
