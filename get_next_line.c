@@ -73,7 +73,7 @@ static char	*fed_stash(int fd, char *stash)
 
 	buffer = malloc(BUFFER_SIZE + 1);
 	if (!buffer)
-		return (ft_free(stash));
+		return (ft_free(stash), NULL);
 	if (!stash)
 		stash = ft_strdup("");
 	readed = 1;
@@ -81,7 +81,7 @@ static char	*fed_stash(int fd, char *stash)
 	{
 		readed = read(fd, buffer, BUFFER_SIZE);
 		if (readed < 0)
-			return (free(buffer), ft_free(stash));
+			return (free(buffer), ft_free(stash), NULL);
 		buffer[readed] = 0;
 		joined_stash = ft_strjoin(stash, buffer);
 		free(stash);
@@ -93,7 +93,7 @@ static char	*fed_stash(int fd, char *stash)
 
 char	*get_next_line(int fd)
 {
-	static char	*stash;
+	static char	*stash = NULL;
 	char		*line;
 
 	if (fd < 0 || BUFFER_SIZE <= 0 || read(fd, 0, 0) < 0)
