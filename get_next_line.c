@@ -81,7 +81,7 @@ static char	*fed_stash(int fd, char *stash)
 	{
 		readed = read(fd, buffer, BUFFER_SIZE);
 		if (readed < 0)
-			return (free(buffer), ft_free(stash), NULL);
+			return (free(buffer), ft_free(stash));
 		buffer[readed] = 0;
 		joined_stash = ft_strjoin(stash, buffer);
 		free(stash);
@@ -93,11 +93,15 @@ static char	*fed_stash(int fd, char *stash)
 
 char	*get_next_line(int fd)
 {
-	static char	*stash = NULL;
+	static char	*stash;
 	char		*line;
 
 	if (fd < 0 || BUFFER_SIZE <= 0 || read(fd, 0, 0) < 0)
+	{
+		free(stash);
+		stash = NULL;
 		return (NULL);
+	}
 	stash = fed_stash(fd, stash);
 	if (!stash)
 		return (NULL);
